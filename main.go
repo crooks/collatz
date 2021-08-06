@@ -71,7 +71,7 @@ func init() {
 
 func main() {
 	n := new(big.Int)
-	n.Exp(big.NewInt(2), big.NewInt(31), nil)
+	n.Exp(big.NewInt(2), big.NewInt(68), nil)
 	highStart := new(big.Int)
 	var highScore int = 0
 	// Being interating candidate 
