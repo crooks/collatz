@@ -36,7 +36,7 @@ func resolveN(n *big.Int) (steps int) {
 	for {
 		stepAction(current)
 		steps++
-		if steps%1500 == 0 {
+		if steps%1000 == 0 {
 			inProg = true
 			fmt.Printf("In progress: Start=%s, Steps=%d\n", n.Text(10), steps)
 		}
@@ -74,7 +74,7 @@ func main() {
 	n.Exp(big.NewInt(2), big.NewInt(68), nil)
 	highStart := new(big.Int)
 	var highScore int = 0
-	// Being interating candidate 
+	// Being iterating candidate integers 
 	for {
 		steps := resolveN(n)
 		if steps > highScore {
