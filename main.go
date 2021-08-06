@@ -3,13 +3,15 @@ package main
 import (
 	"fmt"
 	"math/big"
+	"time"
 )
 
+// cmpToN compares two bigints.  If they match, it returns true.
 func cmpToN(x, y *big.Int) bool {
-	result := x.Cmp(y)
-	return result == 0
+	return x.Cmp(y) == 0
 }
 
+// isEven tests if a given bigint is odd or even
 func isEven(foo *big.Int) bool {
 	m := new(big.Int)
 	foo.DivMod(foo, v2, m)
@@ -27,6 +29,11 @@ func stepAction(current *big.Int) {
 	}
 }
 
+func timestamp() string {
+	t := time.Now()
+	return t.Format("2006-01-02 15:04:05")
+}
+
 var (
 	v0 *big.Int
 	v1 *big.Int
@@ -34,12 +41,14 @@ var (
 	v3 *big.Int
 )
 
-func main() {
+func init() {
 	v0 = big.NewInt(0)
 	v1 = big.NewInt(1)
 	v2 = big.NewInt(2)
 	v3 = big.NewInt(3)
+}
 
+func main() {
 	n := new(big.Int)
 	n.Exp(big.NewInt(2), big.NewInt(128), nil)
 	current := new(big.Int)
@@ -66,7 +75,7 @@ func main() {
 		if steps > highScore {
 			highScore = steps
 			highStart.Set(n)
-			fmt.Printf("Start=%s, Steps=%d\nHighStart=%s, HighSteps=%d\n", n.Text(10), steps, highStart.Text(10), highScore)
+			fmt.Printf("%s: Start=%s, Steps=%d, HighStart=%s, HighSteps=%d\n", timestamp(), n.Text(10), steps, highStart.Text(10), highScore)
 		}
 		n.Add(n, v1)
 		//time.Sleep(1 * time.Second)
