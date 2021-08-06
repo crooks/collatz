@@ -12,21 +12,42 @@ func cmpToN(x, y *big.Int) bool {
 }
 
 // isEven tests if a given bigint is odd or even
-func isEven(foo *big.Int) bool {
+func isEven(x *big.Int) bool {
 	m := new(big.Int)
-	foo.DivMod(foo, v2, m)
+	m.DivMod(x, v2, m)
 	return cmpToN(m, v0)
 }
 
 func stepAction(current *big.Int) {
-	foo := new(big.Int)
-	foo.Set(current)
-	if isEven(foo) {
+	if isEven(current) {
 		current.Div(current, v2)
-	} else {
-		current.Mul(current, v3)
-		current.Add(current, v1)
+		} else {
+			current.Mul(current, v3)
+			current.Add(current, v1)
+		}
 	}
+	
+// resolveN attempts to resolve a given bigint N to 1 using Collatz Conjecture
+func resolveN(n *big.Int) (steps int) {
+	// Take a copy of N so we can modify it without losing our iteration placeholder.
+	current := new(big.Int)
+	current.Set(n)
+	inProg := false
+	for {
+		stepAction(current)
+		steps++
+		if steps%1500 == 0 {
+			inProg = true
+			fmt.Printf("In progress: Start=%s, Steps=%d\n", n.Text(10), steps)
+		}
+		if cmpToN(current, v1) {
+			break
+		}
+	}
+	if inProg {
+		fmt.Printf("Resolved:    Start=%s, Steps=%d\n", n.Text(10), steps)
+	}
+	return
 }
 
 func timestamp() string {
@@ -50,28 +71,12 @@ func init() {
 
 func main() {
 	n := new(big.Int)
-	n.Exp(big.NewInt(2), big.NewInt(128), nil)
-	current := new(big.Int)
+	n.Exp(big.NewInt(2), big.NewInt(31), nil)
 	highStart := new(big.Int)
 	var highScore int = 0
+	// Being interating candidate 
 	for {
-		current.Set(n)
-		steps := 0
-		inProg := false
-		for {
-			stepAction(current)
-			steps++
-			if steps%1500 == 0 {
-				inProg = true
-				fmt.Printf("In progress: Start=%s, Steps=%d\n", n.Text(10), steps)
-			}
-			if cmpToN(current, v1) {
-				break
-			}
-		}
-		if inProg {
-			fmt.Printf("Resolved:    Start=%s, Steps=%d\n", n.Text(10), steps)
-		}
+		steps := resolveN(n)
 		if steps > highScore {
 			highScore = steps
 			highStart.Set(n)
