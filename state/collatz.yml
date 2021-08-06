@@ -1,0 +1,7 @@
+---
+# 2^68. Why? Because you have to start somewhere.
+start_integer: "295147905179352825856"
+high_integer: "0"
+high_steps: 0
+restart_integer: "295147905179352825856"
+write_interval: 300

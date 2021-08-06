@@ -1,9 +1,11 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"math/big"
 	"time"
+
+	"github.com/crooks/collatz/state"
 )
 
 // cmpToN compares two bigints.  If they match, it returns true.
@@ -21,14 +23,14 @@ func isEven(x *big.Int) bool {
 func stepAction(current *big.Int) {
 	if isEven(current) {
 		current.Div(current, v2)
-		} else {
-			current.Mul(current, v3)
-			current.Add(current, v1)
-		}
+	} else {
+		current.Mul(current, v3)
+		current.Add(current, v1)
 	}
-	
+}
+
 // resolveN attempts to resolve a given bigint N to 1 using Collatz Conjecture
-func resolveN(n *big.Int) (steps int) {
+func resolveN(n *big.Int) (steps uint64) {
 	// Take a copy of N so we can modify it without losing our iteration placeholder.
 	current := new(big.Int)
 	current.Set(n)
@@ -38,14 +40,14 @@ func resolveN(n *big.Int) (steps int) {
 		steps++
 		if steps%1000 == 0 {
 			inProg = true
-			fmt.Printf("In progress: Start=%s, Steps=%d\n", n.Text(10), steps)
+			log.Printf("In progress: Start=%s, Steps=%d\n", n.Text(10), steps)
 		}
 		if cmpToN(current, v1) {
 			break
 		}
 	}
 	if inProg {
-		fmt.Printf("Resolved:    Start=%s, Steps=%d\n", n.Text(10), steps)
+		log.Printf("Resolved:    Start=%s, Steps=%d\n", n.Text(10), steps)
 	}
 	return
 }
@@ -70,17 +72,35 @@ func init() {
 }
 
 func main() {
-	n := new(big.Int)
-	n.Exp(big.NewInt(2), big.NewInt(68), nil)
-	highStart := new(big.Int)
-	var highScore int = 0
-	// Being iterating candidate integers 
+	flags := state.ParseFlags()
+	cfg, err := state.ParseState(flags.StateFile)
+	if err != nil {
+		log.Fatalf("Unable to parse %s: %v", flags.StateFile, err)
+	}
+	n := cfg.StartFrom()
+	highInt := new(big.Int)
+	highInt.SetString(cfg.HighInt, 10)
+	// start and writeInterval are used to determine when to write the current state to file.
+	start := time.Now()
+	writeInterval := time.Duration(cfg.WriteInterval) * time.Second
+	var iterationsPerWrite uint64 = 0
+	// Being iterating candidate integers
+	log.Printf("Starting from: %s", n.Text(10))
 	for {
 		steps := resolveN(n)
-		if steps > highScore {
-			highScore = steps
-			highStart.Set(n)
-			fmt.Printf("%s: Start=%s, Steps=%d, HighStart=%s, HighSteps=%d\n", timestamp(), n.Text(10), steps, highStart.Text(10), highScore)
+		iterationsPerWrite++
+		if steps > cfg.HighSteps {
+			cfg.HighSteps = steps
+			highInt.Set(n)
+			log.Printf("%s: Start=%s, Steps=%d, HighStart=%s, highSteps=%d\n", timestamp(), n.Text(10), steps, highInt.Text(10), cfg.HighSteps)
+		}
+		if time.Since(start) > time.Duration(writeInterval) {
+			cfg.HighInt = highInt.Text(10)
+			cfg.RestartInt = n.Text(10)
+			cfg.WriteState(flags.StateFile)
+			log.Printf("Current state written to %s.  Iterations per Second: %d", flags.StateFile, iterationsPerWrite/uint64(cfg.WriteInterval))
+			iterationsPerWrite = 0
+			start = time.Now()
 		}
 		n.Add(n, v1)
 		//time.Sleep(1 * time.Second)
