@@ -7,10 +7,7 @@ import (
 
 func cmpToN(x, y *big.Int) bool {
 	result := x.Cmp(y)
-	if result == 0 {
-		return true
-	}
-	return false
+	return result == 0
 }
 
 func isEven(foo *big.Int) bool {
@@ -24,10 +21,10 @@ func stepAction(current *big.Int) {
 	foo.Set(current)
 	if isEven(foo) {
 		current.Div(current, v2)
-		} else {
-			current.Mul(current, v3)
-			current.Add(current, v1)
-		}
+	} else {
+		current.Mul(current, v3)
+		current.Add(current, v1)
+	}
 }
 
 var (
@@ -44,28 +41,34 @@ func main() {
 	v3 = big.NewInt(3)
 
 	n := new(big.Int)
-	n.Exp(big.NewInt(10), big.NewInt(20), nil)
+	n.Exp(big.NewInt(2), big.NewInt(128), nil)
 	current := new(big.Int)
 	highStart := new(big.Int)
 	var highScore int = 0
 	for {
 		current.Set(n)
 		steps := 0
-		for  {
+		inProg := false
+		for {
 			stepAction(current)
 			steps++
-			if steps % 2000 == 0 {
+			if steps%1500 == 0 {
+				inProg = true
 				fmt.Printf("In progress: Start=%s, Steps=%d\n", n.Text(10), steps)
 			}
 			if cmpToN(current, v1) {
 				break
 			}
 		}
+		if inProg {
+			fmt.Printf("Resolved:    Start=%s, Steps=%d\n", n.Text(10), steps)
+		}
 		if steps > highScore {
 			highScore = steps
 			highStart.Set(n)
-			fmt.Printf("Start=%s, Steps=%d\n", n.Text(10), steps)
+			fmt.Printf("Start=%s, Steps=%d\nHighStart=%s, HighSteps=%d\n", n.Text(10), steps, highStart.Text(10), highScore)
 		}
 		n.Add(n, v1)
+		//time.Sleep(1 * time.Second)
 	}
 }
