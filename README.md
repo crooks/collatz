@@ -13,9 +13,9 @@ Obviously there are quite a lot of numbers to choose from!  If you copy the defa
 Please don't enter into this with a sense of anticipation.  Much computing time has been devoted to the problem, including time on computers that fill large rooms.  Think of this as a bit of fun and a good excuse for writing/refining some **Go** code.
 
 ## Getting Started
-* Grab a copy of the [Go code](https://golang.org/dl/) and follow the installation instructions.
+* Grab a copy of [Go](https://golang.org/dl/) and follow the installation instructions.
 * Clone this repo and compile the code into a **collatz** binary.
-* In a directory of your choosing, create a copy of the **collatz.yml** example file and modify it in accordance with *these instructions*.
+* In a directory of your choosing, create a copy of the **collatz.yml** example file and modify it in accordance with [the instructions](#Configuration).
 * Run the binary!
 * **Note:** the config file doubles-up as a state file.  It will get periodically overwritten as the code condems more numbers to the vast stack of numbers that fail to disprove the conjecture.
 
