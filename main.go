@@ -99,9 +99,9 @@ func main() {
 		steps := resolveN(n)
 		iterationsPerWrite++
 		if steps > cfg.HighSteps {
+			log.Printf("%s: Start=%s, Steps=%d, HighStart=%s, highSteps=%d\n", timestamp(), n.Text(10), steps, highInt.Text(10), cfg.HighSteps)
 			cfg.HighSteps = steps
 			highInt.Set(n)
-			log.Printf("%s: Start=%s, Steps=%d, HighStart=%s, highSteps=%d\n", timestamp(), n.Text(10), steps, highInt.Text(10), cfg.HighSteps)
 		}
 		if time.Since(start) > time.Duration(writeInterval) {
 			cfg.HighInt = highInt.Text(10)
