@@ -20,6 +20,8 @@ func isEven(x *big.Int) bool {
 	return cmpToN(m, v0)
 }
 
+// stepAction performs the Collatz conjecture action for a given candidate number.
+// If the candidate is even, divide by 2.  If it's odd, do 3n+1.
 func stepAction(current *big.Int) {
 	if isEven(current) {
 		current.Div(current, v2)
@@ -65,9 +67,16 @@ var (
 )
 
 func init() {
+	// v0 is used to test if a divide by 2 modulo equals zero (i.e. IS a number even)
 	v0 = big.NewInt(0)
+	// v1 has multiple uses:-
+	//   Test if a given collatz candidate has resolved to 1.
+	//   For odd numbered collatz candidates, do the +1 part of 3n+1
+	//   Increment the candidate counter by 1
 	v1 = big.NewInt(1)
+	// v2 is used to divide by 2 to test if a given candidate is even
 	v2 = big.NewInt(2)
+	// v3 is used to perform the 3n part of Callatz 3n+1
 	v3 = big.NewInt(3)
 }
 
