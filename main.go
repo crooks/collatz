@@ -1,8 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"math/big"
+	"sync"
 	"time"
 
 	"github.com/crooks/collatz/state"
@@ -93,11 +95,24 @@ func main() {
 	start := time.Now()
 	writeInterval := time.Duration(cfg.WriteInterval) * time.Second
 	var iterationsPerWrite uint64 = 0
+	c := make(chan uint64)
+	wg := sync.WaitGroup{}
+	wg.Add(1)
 	// Being iterating candidate integers
 	log.Printf("Starting from: %s", n.Text(10))
-	for {
-		steps := resolveN(n)
-		iterationsPerWrite++
+	go func() {
+		for i := 0; i < 10; i++ {
+			steps := resolveN(n)
+			fmt.Printf("Resolve candidate: %s, Steps: %d\n", n.Text(10), steps)
+			c <- steps
+			n.Add(n, v1)
+		}
+		wg.Done()
+		close(c)
+	}()
+
+	for steps := range c {
+		fmt.Printf("Steps: %d\n", steps)
 		if steps > cfg.HighSteps {
 			log.Printf("%s: Start=%s, Steps=%d, HighStart=%s, highSteps=%d\n", timestamp(), n.Text(10), steps, highInt.Text(10), cfg.HighSteps)
 			cfg.HighSteps = steps
@@ -106,12 +121,12 @@ func main() {
 		if time.Since(start) > time.Duration(writeInterval) {
 			cfg.HighInt = highInt.Text(10)
 			cfg.RestartInt = n.Text(10)
-			cfg.WriteState(flags.StateFile)
+			//cfg.WriteState(flags.StateFile)
 			log.Printf("Current state written to %s.  Iterations per Second: %d", flags.StateFile, iterationsPerWrite/uint64(cfg.WriteInterval))
 			iterationsPerWrite = 0
 			start = time.Now()
 		}
-		n.Add(n, v1)
 		//time.Sleep(1 * time.Second)
 	}
+	wg.Wait()
 }
