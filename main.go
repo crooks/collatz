@@ -20,9 +20,9 @@ func isEven(x *big.Int) bool {
 	return cmpToN(m, v0)
 }
 
-// stepAction performs the Collatz conjecture action for a given candidate number.
+// collatzStepAction performs the Collatz conjecture action for a given candidate number.
 // If the candidate is even, divide by 2.  If it's odd, do 3n+1.
-func stepAction(current *big.Int) {
+func collatzStepAction(current *big.Int) {
 	if isEven(current) {
 		current.Div(current, v2)
 	} else {
@@ -31,24 +31,27 @@ func stepAction(current *big.Int) {
 	}
 }
 
-// resolveN attempts to resolve a given bigint N to 1 using Collatz Conjecture
-func resolveN(n *big.Int) (steps uint64) {
+// collatzResolveN attempts to resolve a given bigint N to 1 using Collatz Conjecture
+func collatzResolveN(n *big.Int) (steps uint64) {
 	// Take a copy of N so we can modify it without losing our iteration placeholder.
 	current := new(big.Int)
 	current.Set(n)
-	inProg := false
+	// worthyMention flips to True when a Collatz candidates takes a significant
+	// number of steps to resolve. This triggers some additional logging.
+	worthyMention := false
 	for {
-		stepAction(current)
+		collatzStepAction(current)
 		steps++
 		if steps%1000 == 0 {
-			inProg = true
+			worthyMention = true
 			log.Printf("In progress: Start=%s, Steps=%d\n", n.Text(10), steps)
 		}
 		if cmpToN(current, v1) {
+			// The current Collatz candidate has resolved to 1
 			break
 		}
 	}
-	if inProg {
+	if worthyMention {
 		log.Printf("Resolved:    Start=%s, Steps=%d\n", n.Text(10), steps)
 	}
 	return
@@ -96,7 +99,7 @@ func main() {
 	// Being iterating candidate integers
 	log.Printf("Starting from: %s", n.Text(10))
 	for {
-		steps := resolveN(n)
+		steps := collatzResolveN(n)
 		iterationsPerWrite++
 		if steps > cfg.HighSteps {
 			log.Printf("%s: Start=%s, Steps=%d, HighStart=%s, highSteps=%d\n", timestamp(), n.Text(10), steps, highInt.Text(10), cfg.HighSteps)

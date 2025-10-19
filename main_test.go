@@ -27,13 +27,13 @@ func TestStepAction(t *testing.T) {
 	y := new(big.Int)
 	x.SetString("22222222224444444444", 10)
 	y.SetString("11111111112222222222", 10)
-	stepAction(x)
+	collatzStepAction(x)
 	if !cmpToN(x, y) {
 		t.Fatalf("Expected: %s, Got: %s", y.Text(10), x.Text(10))
 	}
 	x.SetString("123456789012345", 10)
 	y.SetString("370370367037036", 10)
-	stepAction(x)
+	collatzStepAction(x)
 	if x.Cmp(y) != 0 {
 		t.Fatalf("Expected: %s, Got: %s", y.Text(10), x.Text(10))
 	}
@@ -65,7 +65,7 @@ func TestResolveN(t *testing.T) {
 		y := new(big.Int)
 		x.SetString(test, 10)
 		y.Set(x)
-		steps := resolveN(x)
+		steps := collatzResolveN(x)
 		if steps != tests[test] {
 			t.Fatalf("Expected: %d, Got: %d", tests[test], steps)
 		}
@@ -100,6 +100,6 @@ func BenchmarkResolveN(b *testing.B) {
 	for _, test := range tests {
 		x := new(big.Int)
 		x.SetString(test, 10)
-		resolveN(x)
+		collatzResolveN(x)
 	}
 }
